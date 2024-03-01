@@ -1,9 +1,9 @@
 import localforage from 'localforage';
 import { ProductData } from 'types';
 
-const DB = '__wb-cart';
+const DB = '__wb-favs';
 
-class CartService {
+class FavService {
   init() {
     this._updCounters();
   }
@@ -11,7 +11,6 @@ class CartService {
   async addProduct(product: ProductData) {
     const products = await this.get();
     await this.set([...products, product]);
-    console.log(await localforage.getItem('__wb-cart'));
   }
 
   async removeProduct(product: ProductData) {
@@ -34,17 +33,25 @@ class CartService {
   }
 
   async isInCart(product: ProductData) {
-    const products = await this.get();
-    return products.some(({ id }) => id === product.id);
+    const favs = await this.get();
+    return favs.some(({ id }) => id === product.id);
   }
 
   private async _updCounters() {
     const products = await this.get();
     const count = products.length >= 10 ? '9+' : products.length;
 
+    if (!products.length) {
+      //@ts-ignore
+      document.querySelectorAll('.fav').forEach(($el: HTMLElement) => $el.classList.add('fav__hidden'));
+    } else {
+      //@ts-ignore
+      document.querySelectorAll('.fav').forEach(($el: HTMLElement) => $el.classList.remove('fav__hidden'));
+    }
+
     //@ts-ignore
-    document.querySelectorAll('.js__cart-counter').forEach(($el: HTMLElement) => ($el.innerText = String(count || '')));
+    document.querySelectorAll('.favCounter').forEach(($el: HTMLElement) => ($el.innerText = String(count || '')));
   }
 }
 
-export const cartService = new CartService();
+export const favService = new FavService();

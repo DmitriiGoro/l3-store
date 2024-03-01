@@ -4,6 +4,7 @@ import { formatPrice } from '../../utils/helpers';
 import { ProductData } from 'types';
 import html from './productDetail.tpl.html';
 import { cartService } from '../../services/cart.service';
+import { favService } from '../../services/favourite.service';
 
 class ProductDetail extends Component {
   more: ProductList;
@@ -32,10 +33,23 @@ class ProductDetail extends Component {
     this.view.description.innerText = description;
     this.view.price.innerText = formatPrice(salePriceU);
     this.view.btnBuy.onclick = this._addToCart.bind(this);
+    this.view.btnFav.onclick = async () => {
+      const isFavourite = await this.isFavourite();
+
+      if (isFavourite) {
+        this._removeFromFav();
+        this.view.svg_icon.style.fill = '';
+        return;
+      }
+      this._addToFav();
+      this.view.svg_icon.style.fill = 'var(--key-color)';
+    };
 
     const isInCart = await cartService.isInCart(this.product);
+    const isInFavourite = await favService.isInCart(this.product);
 
     if (isInCart) this._setInCart();
+    if (isInFavourite) this.view.svg_icon.style.fill = 'var(--key-color)';
 
     fetch(`/api/getProductSecretKey?id=${id}`)
       .then((res) => res.json())
@@ -48,6 +62,26 @@ class ProductDetail extends Component {
       .then((products) => {
         this.more.update(products);
       });
+  }
+
+  async isFavourite() {
+    if (!this.product) return;
+
+    const isFavourite = await favService.isInCart(this.product);
+
+    return isFavourite;
+  }
+
+  private _addToFav() {
+    if (!this.product) return;
+
+    favService.addProduct(this.product);
+  }
+
+  private _removeFromFav() {
+    if (!this.product) return;
+
+    favService.removeProduct(this.product);
   }
 
   private _addToCart() {

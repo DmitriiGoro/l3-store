@@ -120,13 +120,30 @@ img {
   }
 }
 
-.cart {
+.cart,
+.fav {
   position: relative;
+}
+
+.cart {
+  .cartCounter {
+    right: -16px;
+  }
+}
+
+.fav {
+  .cartCounter {
+    right: -12px;
+  }
+}
+
+.fav__hidden {
+  display: none;
 }
 
 .cartCounter {
   position: absolute;
-  right: -21px;
+  right: 6px;
   top: -10px;
   background: #ff5100;
   color: #fff;
